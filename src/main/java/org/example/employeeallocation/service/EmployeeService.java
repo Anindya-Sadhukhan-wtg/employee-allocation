@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +29,9 @@ public class EmployeeService {
         try {
             List<Employee> employees = employeeRepository.findAll();
             ApiResponse<List<Employee>> response = new ApiResponse<>(employees);
+            if(employees.isEmpty()){
+                response.setMessage("No employees found");
+            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
             System.err.println("Error retrieving employees: " + ex.getMessage());
@@ -50,36 +50,94 @@ public class EmployeeService {
             ApiResponse<Employee> response = new ApiResponse<>(employee.get());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
-            System.err.println("Error retrieving employees: " + ex.getMessage());
+            System.err.println("Error retrieving employee: " + ex.getMessage());
             ApiResponse<Employee> response = new ApiResponse<>("Failed to retrieve employee due to an internal error.");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     public ResponseEntity<ApiResponse<List<Employee>>> createEmployees(List<CreateEmployeeRequestDTO> employees) {
-        List<Employee> savedEmployees = new ArrayList<>();
-        employees.forEach(employee -> savedEmployees.add(processEmployeeCreation(employee)));
-        ApiResponse<List<Employee>> response = new ApiResponse<>(savedEmployees);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        try {
+            List<Employee> savedEmployees = new ArrayList<>();
+            employees.forEach(employee -> savedEmployees.add(processEmployeeCreation(employee)));
+            ApiResponse<List<Employee>> response = new ApiResponse<>(savedEmployees);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }catch (Exception ex) {
+            System.err.println("Error creating employees: " + ex.getMessage());
+            ApiResponse<List<Employee>> response = new ApiResponse<>("Failed to create employees due to an internal error.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
-    private Employee processEmployeeCreation(CreateEmployeeRequestDTO employee) {
+
+    public ResponseEntity<ApiResponse<Employee>> updateEmployeeById(long id, CreateEmployeeRequestDTO employee) {
+        try{
+            Optional<Employee> employeeData = employeeRepository.findById(id);
+            if(employeeData.isEmpty()) {
+                ApiResponse<Employee> response = new ApiResponse<>("There is no employee with the id " + id);
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+
+            Employee updatedEmployee = processEmployeeCreation(employee,id);
+            return new ResponseEntity<>(new ApiResponse<>(updatedEmployee), HttpStatus.OK);
+        }catch (Exception ex) {
+            System.err.println("Error updating employee: " + ex.getMessage());
+            ApiResponse<Employee> response = new ApiResponse<>("Failed to update employee due to an internal error.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<String> deleteEmployeeById(long id) {
+        try{
+            Optional<Employee> employeeData = employeeRepository.findById(id);
+            if(employeeData.isEmpty()) {
+                return new ResponseEntity<>("There is no employee with the id " + id, HttpStatus.NOT_FOUND);
+            }
+
+            employeeRepository.deleteById(id);
+            return new ResponseEntity<>("Employee deleted", HttpStatus.OK);
+        }catch (Exception ex) {
+            System.err.println("Error deleting employee: " + ex.getMessage());
+            return new ResponseEntity<>("Failed to delete employee due to an internal error.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Employee processEmployeeCreation(CreateEmployeeRequestDTO employee){
+        return processEmployeeCreation(employee,null);
+    }
+    private Employee processEmployeeCreation(CreateEmployeeRequestDTO employee, Long employeeId) {
         List<Department> mandatoryDepartments = departmentRepository.findByMandatoryTrue();
-        Set<Department> departments = employee.getDepartmentIds().stream()
+        List<Department> employeeDepartmentsFromPayload = employee.getDepartmentIds().stream()
                 .map(Long::parseLong)
                 .map(departmentRepository::findById)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toSet());
+                .toList();
+        Set<Department> employeeDepartmentList = new HashSet<>();
+        HashMap<Long,Boolean> departmentIdIsPresentMap = new HashMap<>();
 
-        if(mandatoryDepartments != null) {
+        mandatoryDepartments.forEach(department -> {
+            departmentIdIsPresentMap.put(department.getId(), true);
+            employeeDepartmentList.add(department);
+        });
 
-        }
-        // Create a new employee
+        employeeDepartmentsFromPayload.forEach(department -> {
+            if(!departmentIdIsPresentMap.containsKey(department.getId())) {
+                departmentIdIsPresentMap.put(department.getId(), true);
+                employeeDepartmentList.add(department);
+            }
+        });
+
         Employee newEmployee = Employee.builder()
                 .name(employee.getName())
-                .departments(departments)
+                .departments(employeeDepartmentList)
                 .build();
+
+        if(employeeId != null) {
+            newEmployee.setId(employeeId);
+        }
 
         return employeeRepository.save(newEmployee);
     }
+
+
 }

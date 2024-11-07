@@ -34,4 +34,15 @@ public class EmployeeController {
     public ResponseEntity<ApiResponse<List<Employee>>> createEmployees(@RequestBody List<CreateEmployeeRequestDTO> employees) {
         return employeeService.createEmployees(employees);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Employee>> updateEmployee(@RequestBody CreateEmployeeRequestDTO employee,
+                                                                @PathVariable long id) {
+        return employeeService.updateEmployeeById(id, employee);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteEmployeeById(@PathVariable long id) {
+        return employeeService.deleteEmployeeById(id);
+    }
 }

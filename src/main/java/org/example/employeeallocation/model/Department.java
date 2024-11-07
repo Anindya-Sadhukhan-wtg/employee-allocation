@@ -1,5 +1,6 @@
 package org.example.employeeallocation.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,7 @@ public class Department {
     private Boolean readOnly = false;
 
     @ManyToMany(mappedBy = "departments")
+    @JsonIgnore
     @Builder.Default
     private Set<Employee> employees = new HashSet<>();
 }

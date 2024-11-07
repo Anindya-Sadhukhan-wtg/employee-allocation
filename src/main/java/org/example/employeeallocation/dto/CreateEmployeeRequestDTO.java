@@ -12,7 +12,6 @@ import java.util.Set;
 @Getter
 @Setter
 public class CreateEmployeeRequestDTO {
-    private Long id;
     private String name;
     private Set<String> departmentIds;
 }
