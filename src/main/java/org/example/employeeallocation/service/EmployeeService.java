@@ -29,6 +29,7 @@ public class EmployeeService {
         try {
             List<Employee> employees = employeeRepository.findAll();
             ApiResponse<List<Employee>> response = new ApiResponse<>(employees);
+            response.setMessage("Employees fetched successfully");
             if(employees.isEmpty()){
                 response.setMessage("No employees found");
             }
@@ -47,7 +48,7 @@ public class EmployeeService {
                 ApiResponse<Employee> response = new ApiResponse<>("Could not find employee with id " + id);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
-            ApiResponse<Employee> response = new ApiResponse<>(employee.get());
+            ApiResponse<Employee> response = new ApiResponse<>(employee.get(),"Employee fetched successfully");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception ex) {
             System.err.println("Error retrieving employee: " + ex.getMessage());
@@ -60,7 +61,7 @@ public class EmployeeService {
         try {
             List<Employee> savedEmployees = new ArrayList<>();
             employees.forEach(employee -> savedEmployees.add(processEmployeeCreation(employee)));
-            ApiResponse<List<Employee>> response = new ApiResponse<>(savedEmployees);
+            ApiResponse<List<Employee>> response = new ApiResponse<>(savedEmployees,"Successfully created employees");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }catch (Exception ex) {
             System.err.println("Error creating employees: " + ex.getMessage());
@@ -71,14 +72,14 @@ public class EmployeeService {
 
     public ResponseEntity<ApiResponse<Employee>> updateEmployeeById(long id, CreateEmployeeRequestDTO employee) {
         try{
-            Optional<Employee> employeeData = employeeRepository.findById(id);
-            if(employeeData.isEmpty()) {
+            Optional<Employee> employeeCurrentData = employeeRepository.findById(id);
+            if(employeeCurrentData.isEmpty()) {
                 ApiResponse<Employee> response = new ApiResponse<>("There is no employee with the id " + id);
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
             Employee updatedEmployee = processEmployeeCreation(employee,id);
-            return new ResponseEntity<>(new ApiResponse<>(updatedEmployee), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse<>(updatedEmployee,"Updated employee"), HttpStatus.OK);
         }catch (Exception ex) {
             System.err.println("Error updating employee: " + ex.getMessage());
             ApiResponse<Employee> response = new ApiResponse<>("Failed to update employee due to an internal error.");
@@ -138,6 +139,5 @@ public class EmployeeService {
 
         return employeeRepository.save(newEmployee);
     }
-
 
 }
