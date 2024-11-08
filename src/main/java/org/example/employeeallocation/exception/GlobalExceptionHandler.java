@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
     @ExceptionHandler(value= ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex){
-        log.error(HttpStatus.NOT_FOUND + ex.getMessage());
+        log.error(HttpStatus.NOT_FOUND + " " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(HttpStatus.NOT_FOUND.value(),
                 ex.getMessage()));
     }
 
     @ExceptionHandler(value= BadDataException.class)
     public ResponseEntity<ErrorResponse> handleBadDataException(BadDataException ex){
-        log.error(HttpStatus.BAD_REQUEST + ex.getMessage());
+        log.error(HttpStatus.BAD_REQUEST + " " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
                 ex.getMessage()));
     }

@@ -1,8 +1,8 @@
 package org.example.employeeallocation.controller;
 
-import org.example.employeeallocation.common.ApiResponse;
 import org.example.employeeallocation.model.Department;
 import org.example.employeeallocation.service.DepartmentServiceImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,28 +20,28 @@ public class DepartmentController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Department>>> getAllDepartments() {
-        return departmentServiceImpl.getAllDepartments();
+    public ResponseEntity<List<Department>> getAllDepartments() {
+        return new ResponseEntity<>(departmentServiceImpl.getAllDepartments(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Department>> getDepartmentById(@PathVariable long id) {
-        return departmentServiceImpl.getDepartmentById(id);
+    public ResponseEntity<Department> getDepartment(@PathVariable long id) {
+        return new ResponseEntity<>(departmentServiceImpl.getDepartment(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<List<Department>>> createDepartments(@RequestBody List<Department> departments) {
-        return departmentServiceImpl.createDepartments(departments);
+    public ResponseEntity<Department> addDepartment(@RequestBody Department department) {
+        return new ResponseEntity<>(departmentServiceImpl.addDepartment(department), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Department>> updateDepartment(@PathVariable long id, @RequestBody Department department) {
-        return departmentServiceImpl.updateDepartment(id, department);
+    @PutMapping
+    public ResponseEntity<Department> updateDepartment(@RequestBody Department department) {
+        return new ResponseEntity<>(departmentServiceImpl.updateDepartment(department), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteDepartment(@PathVariable long id) {
-        return departmentServiceImpl.deleteDepartment(id);
+        return new ResponseEntity<>(departmentServiceImpl.deleteDepartment(id), HttpStatus.OK);
     }
 
 }

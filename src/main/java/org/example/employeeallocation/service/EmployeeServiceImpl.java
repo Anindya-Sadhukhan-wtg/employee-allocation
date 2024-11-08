@@ -38,6 +38,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public Employee addEmployee(Employee employee) {
+        validateAddOrUpdateEmployee(employee);
         return processEmployeeCreation(employee);
     }
 
@@ -45,23 +46,23 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(employee.getId()==0){
             throw new BadDataException(ErrorMessages.ERROR_INVALID_EMPLOYEE_ID);
         }
-        Optional<Employee> employeeCurrentData = employeeRepository.findById(employee.getId());
-        if(employeeCurrentData.isEmpty()) {
-            throw new ResourceNotFoundException(ErrorMessages.ERROR_EMPLOYEE_NOT_FOUND + employee.getId());
-        }
+        getEmployee(employee.getId());
+        validateAddOrUpdateEmployee(employee);
+
         return processEmployeeCreation(employee);
     }
 
     public String deleteEmployee(long id) {
-        Optional<Employee> employeeData = employeeRepository.findById(id);
-        if(employeeData.isEmpty()) {
-            throw new ResourceNotFoundException(ErrorMessages.ERROR_EMPLOYEE_NOT_FOUND + id);
-        }
-
+        getEmployee(id);
         employeeRepository.deleteById(id);
         return "Employee deleted";
     }
 
+    private void validateAddOrUpdateEmployee(Employee employee){
+        if(employee.getName().isBlank()){
+            throw new BadDataException(ErrorMessages.ERROR_INVALID_EMPLOYEE_NAME);
+        }
+    }
     private Employee processEmployeeCreation(Employee employee) {
         List<Department> mandatoryDepartments = departmentRepository.findByMandatoryTrue();
         List<Department> employeeDepartmentsFromPayload = employee.getDepartments().stream()

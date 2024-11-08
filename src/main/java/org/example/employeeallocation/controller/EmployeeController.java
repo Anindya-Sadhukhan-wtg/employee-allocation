@@ -1,7 +1,5 @@
 package org.example.employeeallocation.controller;
 
-import org.example.employeeallocation.common.ApiResponse;
-import org.example.employeeallocation.dto.CreateEmployeeRequestDTO;
 import org.example.employeeallocation.model.Employee;
 import org.example.employeeallocation.service.EmployeeServiceImpl;
 import org.springframework.http.HttpStatus;
@@ -27,12 +25,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public  ResponseEntity<Employee> getEmployeeById(@PathVariable long id) {
+    public  ResponseEntity<Employee> getEmployee(@PathVariable long id) {
         return new ResponseEntity<>(employeeServiceImpl.getEmployee(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployees(@RequestBody Employee employee) {
+    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         return new ResponseEntity<>(employeeServiceImpl.addEmployee(employee),HttpStatus.OK);
     }
 
@@ -42,7 +40,7 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteEmployeeById(@PathVariable long id) {
+    public ResponseEntity<String> deleteEmployee(@PathVariable long id) {
         return new ResponseEntity<>(employeeServiceImpl.deleteEmployee(id),HttpStatus.OK);
     }
 }
