@@ -16,7 +16,6 @@ public interface DepartmentRepository extends JpaRepository<Department, Long> {
     Optional<Department> findByName(String name);
 
     @Modifying
-    @Transactional
-    @Query(value = "DELETE FROM Employee_Department WHERE department_id = :departmentId", nativeQuery = true)
+    @Query(value = "DELETE FROM MAP_EMPLOYEE_DEPARTMENT WHERE id_department = :departmentId", nativeQuery = true)
     void deleteEmployeeDepartmentAssociations(@Param("departmentId") Long departmentId);
 }

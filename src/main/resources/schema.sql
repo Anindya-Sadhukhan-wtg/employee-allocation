@@ -1,19 +1,26 @@
-CREATE TABLE Employee (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL
+-- noinspection SqlNoDataSourceInspectionForFile
+
+CREATE TABLE EMPLOYEE (
+    id BIGINT PRIMARY KEY ,
+    name_first VARCHAR(100) NOT NULL,
+    name_last VARCHAR(100) NOT NULL
 );
 
-CREATE TABLE Department (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+CREATE SEQUENCE SEQ_EMPLOYEE START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE DEPARTMENT (
+    id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     mandatory BOOLEAN DEFAULT FALSE NOT NULL,
     read_only BOOLEAN DEFAULT FALSE NOT NULL
 );
 
-CREATE TABLE Employee_Department (
-    employee_id BIGINT,
-    department_id BIGINT,
-    PRIMARY KEY (employee_id, department_id),
-    FOREIGN KEY (employee_id) REFERENCES Employee(id),
-    FOREIGN KEY (department_id) REFERENCES Department(id)
+CREATE SEQUENCE SEQ_DEPARTMENT START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE MAP_EMPLOYEE_DEPARTMENT (
+    id_employee BIGINT,
+    id_department BIGINT,
+    PRIMARY KEY (id_employee, id_department),
+    FOREIGN KEY (id_employee) REFERENCES EMPLOYEE(id),
+    FOREIGN KEY (id_department) REFERENCES DEPARTMENT(id)
 );

@@ -1,5 +1,6 @@
 package org.example.employeeallocation.controller;
 
+import jakarta.validation.Valid;
 import org.example.employeeallocation.model.Department;
 import org.example.employeeallocation.service.DepartmentServiceImpl;
 import org.springframework.http.HttpStatus;
@@ -30,12 +31,12 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Department> addDepartment(@RequestBody Department department) {
+    public ResponseEntity<Department> addDepartment(@Valid @RequestBody Department department) {
         return new ResponseEntity<>(departmentServiceImpl.addDepartment(department), HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<Department> updateDepartment(@RequestBody Department department) {
+    public ResponseEntity<Department> updateDepartment(@Valid @RequestBody Department department) {
         return new ResponseEntity<>(departmentServiceImpl.updateDepartment(department), HttpStatus.OK);
     }
 
