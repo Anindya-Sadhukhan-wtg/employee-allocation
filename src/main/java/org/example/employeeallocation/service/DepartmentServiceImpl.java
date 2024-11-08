@@ -3,7 +3,6 @@ package org.example.employeeallocation.service;
 import org.example.employeeallocation.common.ApiResponse;
 import org.example.employeeallocation.model.Department;
 import org.example.employeeallocation.repository.DepartmentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,10 +11,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DepartmentService {
+public class DepartmentServiceImpl {
 
-    @Autowired
-    private DepartmentRepository departmentRepository;
+
+    private final DepartmentRepository departmentRepository;
+
+    public DepartmentServiceImpl(DepartmentRepository departmentRepository) {
+        this.departmentRepository = departmentRepository;
+    }
 
     public ResponseEntity<ApiResponse<List<Department>>> getAllDepartments() {
         try {
@@ -99,7 +102,7 @@ public class DepartmentService {
                 return new ResponseEntity<>("There is no department with the id " + id, HttpStatus.NOT_FOUND);
             }
 
-            // If both current data and incoming data has read only attribute set to true then data is not updated
+            // If the department has readonly attribute set to true then it cannot be deleted
             if(departmentCurrentData.get().getReadOnly()){
                 return new ResponseEntity<>("Department is read-only", HttpStatus.BAD_REQUEST);
             }

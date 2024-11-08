@@ -3,46 +3,46 @@ package org.example.employeeallocation.controller;
 import org.example.employeeallocation.common.ApiResponse;
 import org.example.employeeallocation.dto.CreateEmployeeRequestDTO;
 import org.example.employeeallocation.model.Employee;
-import org.example.employeeallocation.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.employeeallocation.service.EmployeeServiceImpl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/employee")
 public class EmployeeController {
 
-    @Autowired
-    private EmployeeService employeeService;
+
+    private final EmployeeServiceImpl employeeServiceImpl;
+
+    public EmployeeController(EmployeeServiceImpl employeeServiceImpl) {
+        this.employeeServiceImpl = employeeServiceImpl;
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Employee>>> getAllEmployee() {
-        return employeeService.getAllEmployees();
+    public ResponseEntity<List<Employee>> getAllEmployee() {
+        return new ResponseEntity<>(employeeServiceImpl.getAllEmployees(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public  ResponseEntity<ApiResponse<Employee>> getEmployeeById(@PathVariable long id) {
-        return employeeService.getEmployeeById(id);
+    public  ResponseEntity<Employee> getEmployeeById(@PathVariable long id) {
+        return new ResponseEntity<>(employeeServiceImpl.getEmployee(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<List<Employee>>> createEmployees(@RequestBody List<CreateEmployeeRequestDTO> employees) {
-        return employeeService.createEmployees(employees);
+    public ResponseEntity<Employee> createEmployees(@RequestBody Employee employee) {
+        return new ResponseEntity<>(employeeServiceImpl.addEmployee(employee),HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Employee>> updateEmployee(@RequestBody CreateEmployeeRequestDTO employee,
-                                                                @PathVariable long id) {
-        return employeeService.updateEmployeeById(id, employee);
+    @PutMapping
+    public ResponseEntity<Employee> updateEmployee(@RequestBody Employee employee) {
+        return new ResponseEntity<>(employeeServiceImpl.updateEmployee(employee),HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEmployeeById(@PathVariable long id) {
-        return employeeService.deleteEmployeeById(id);
+        return new ResponseEntity<>(employeeServiceImpl.deleteEmployee(id),HttpStatus.OK);
     }
 }
