@@ -20,10 +20,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         this.departmentRepository = departmentRepository;
     }
 
+    @Override
     public List<Department> getAllDepartments() {
         return departmentRepository.findAll();
     }
 
+    @Override
     public Department getDepartment(Long id) {
         Optional<Department> department = departmentRepository.findById(id);
         if(department.isEmpty()) {
@@ -32,10 +34,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         return department.get();
     }
 
+    @Override
     public Department addDepartment(Department department){
         return departmentRepository.save(department);
     }
 
+    @Override
     public Department updateDepartment(Department department) {
         if(department.getId()==null){
             throw new IllegalArgumentException(ErrorMessages.ERROR_INVALID_DEPARTMENT_ID);
@@ -50,6 +54,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentRepository.save(department);
     }
 
+    @Override
     public String deleteDepartment(Long id) {
         Department departmentData = getDepartment(id);
 

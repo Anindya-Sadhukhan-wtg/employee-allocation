@@ -23,10 +23,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.departmentRepository = departmentRepository;
     }
 
+    @Override
     public List<Employee> getAllEmployees() {
         return employeeRepository.findAll();
     }
 
+    @Override
     public Employee getEmployee(Long id) {
         Optional<Employee> employee = employeeRepository.findById(id);
         if(employee.isEmpty()) {
@@ -35,10 +37,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee.get();
     }
 
+    @Override
     public Employee addEmployee(Employee employee) {
         return processEmployeeCreation(employee);
     }
 
+    @Override
     public Employee updateEmployee(Employee employee) {
         if(employee.getId() == null){
             throw new IllegalArgumentException(ErrorMessages.ERROR_INVALID_EMPLOYEE_ID);
@@ -48,6 +52,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         return processEmployeeCreation(employee);
     }
 
+    @Override
     public String deleteEmployee(Long id) {
         getEmployee(id);
         employeeRepository.deleteById(id);
