@@ -1,9 +1,7 @@
 package org.example.employeeallocation.service;
 
 import org.example.employeeallocation.model.Department;
-import org.example.employeeallocation.model.Employee;
 import org.example.employeeallocation.repository.DepartmentRepository;
-import org.example.employeeallocation.repository.EmployeeRepository;
 import org.example.employeeallocation.utility.ErrorMessages;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,101 +16,89 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class DepartmentServiceUnitTests {
+public class DepartmentServiceTests {
+
+    public static final long READ_ONLY_AND_MANDATORY_DEPARTMENT_ID = 1L;
+    public static final String READ_ONLY_ONLY_AND_MANDATORY_DEPARTMENT_NAME = "Organisation";
+    public static final long MANDATORY_DEPARTMENT_ID = 2L;
+    public static final String MANDATORY_DEPARTMENT_NAME = "R&D";
 
     @Mock
     private DepartmentRepository departmentRepository;
 
     @Spy
     @InjectMocks
-    private DepartmentServiceImpl departmentService;
+    private DepartmentServiceImpl departmentServiceImpl;
+    
+    private DepartmentService ref;
 
     private Department readOnlyAndMandatoryDepartment;
     private Department mandatoryDepartment;
-    private Department departmentBolero;
-    private Department departmentWinzor;
 
     @BeforeEach
     public void setUp() {
         readOnlyAndMandatoryDepartment = Department.builder()
-                .id(1L)
-                .name("Organisation")
+                .id(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID)
+                .name(READ_ONLY_ONLY_AND_MANDATORY_DEPARTMENT_NAME)
                 .mandatory(true)
                 .readOnly(true)
                 .build();
 
         mandatoryDepartment = Department.builder()
-                .id(2L)
-                .name("R&D")
+                .id(MANDATORY_DEPARTMENT_ID)
+                .name(MANDATORY_DEPARTMENT_NAME)
                 .mandatory(true)
                 .readOnly(false)
                 .build();
 
-        departmentBolero = Department.builder()
-                .id(3L)
-                .name("Bolero")
-                .mandatory(false)
-                .readOnly(false)
-                .build();
-
-        departmentWinzor = Department.builder()
-                .id(4L)
-                .name("Winzor")
-                .mandatory(false)
-                .readOnly(false)
-                .build();
+        ref= new DepartmentServiceImpl(departmentRepository);
+        lenient().when(departmentRepository.save(readOnlyAndMandatoryDepartment)).thenReturn(readOnlyAndMandatoryDepartment);
+        lenient().doReturn(readOnlyAndMandatoryDepartment).when(departmentServiceImpl).getDepartmentById(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID);
     }
 
     @Test
     @DisplayName("Create department")
-    @Order(1)
-    public void addDepartmentTest() {
-        given(departmentRepository.save(readOnlyAndMandatoryDepartment)).willReturn(readOnlyAndMandatoryDepartment);
-
-        Department savedDepartment = departmentService.addDepartment(readOnlyAndMandatoryDepartment);
+    public void testCreateDepartment_Success() {
+        Department savedDepartment = ref.addDepartment(readOnlyAndMandatoryDepartment);
 
         assertThat(savedDepartment).isNotNull();
     }
 
     @Test
     @DisplayName("Get all departments")
-    @Order(2)
-    public void getAllDepartmentsTest() {
-        given(departmentRepository.findAll()).willReturn(Arrays.asList(readOnlyAndMandatoryDepartment, mandatoryDepartment, departmentBolero, departmentWinzor));
+    public void testGetAllDepartments_Success() {
+        given(departmentRepository.findAll()).willReturn(Arrays.asList(readOnlyAndMandatoryDepartment, mandatoryDepartment));
 
-        List<Department> departmentList= departmentService.getAllDepartments();
+        List<Department> departmentList= ref.getAllDepartments();
 
         assertThat(departmentList).isNotNull();
         assertThat(departmentList.size()).isGreaterThan(1);
-        assertThat(departmentList).contains(readOnlyAndMandatoryDepartment, mandatoryDepartment, departmentBolero, departmentWinzor);
+        assertThat(departmentList).contains(readOnlyAndMandatoryDepartment, mandatoryDepartment);
     }
 
     @Test
     @DisplayName("Get department: successfully fetch by id")
-    @Order(3)
-    public void getDepartmentByIdTest() {
-        given(departmentRepository.findById(1L)).willReturn(Optional.of(readOnlyAndMandatoryDepartment));
+    public void testGetDepartmentById_Success() {
+        given(departmentRepository.findById(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID)).willReturn(Optional.of(readOnlyAndMandatoryDepartment));
 
-        Department department= departmentService.getDepartmentById(1L);
+        Department department= ref.getDepartmentById(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID);
 
         assertThat(department).isNotNull();
-        assertThat(department.getId()).isEqualTo(1L);
+        assertThat(department.getId()).isEqualTo(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID);
     }
 
     @Test
     @DisplayName("Get department: error as no such department exist with given id")
-    @Order(4)
-    public void getDepartmentByNonExistentId_ShouldThrowNoSuchElementExceptionTest() {
+    public void testGetDepartmentByNonExistentId_ShouldThrowNoSuchElementException() {
         Long nonExistentId = 99L;
         given(departmentRepository.findById(nonExistentId)).willReturn(Optional.empty());
 
         NoSuchElementException noSuchElementException = assertThrows(NoSuchElementException.class, () -> {
-            departmentService.getDepartmentById(nonExistentId);
+            ref.getDepartmentById(nonExistentId);
         });
 
         assertEquals(ErrorMessages.ERROR_DEPARTMENT_NOT_FOUND + nonExistentId, noSuchElementException.getMessage());
@@ -120,14 +106,13 @@ public class DepartmentServiceUnitTests {
 
     @Test
     @DisplayName("Update department: invalid id error")
-    @Order(5)
-    public void updateDepartmentByInvalidId_ShouldThrowIllegalArgumentExceptionTest() {
+    public void testUpdateDepartmentByInvalidId_ShouldThrowIllegalArgumentException() {
         Department department = Department.builder()
                 .name("HR")
                 .build();
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            departmentService.updateDepartment(department);
+            ref.updateDepartment(department);
         });
 
         assertEquals(ErrorMessages.ERROR_INVALID_DEPARTMENT_ID, exception.getMessage());
@@ -135,8 +120,7 @@ public class DepartmentServiceUnitTests {
 
     @Test
     @DisplayName("Update department: non existent id error")
-    @Order(6)
-    public void updateDepartmentByNonExistentId_ShouldThrowNoSuchElementExceptionTest() {
+    public void testUpdateDepartmentByNonExistentId_ShouldThrowNoSuchElementException() {
         Department department = Department.builder()
                 .id(99L)
                 .name("HR")
@@ -145,7 +129,7 @@ public class DepartmentServiceUnitTests {
                 .build();
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            departmentService.updateDepartment(department);
+            ref.updateDepartment(department);
         });
 
         assertEquals(ErrorMessages.ERROR_DEPARTMENT_NOT_FOUND + department.getId(), exception.getMessage());
@@ -153,19 +137,16 @@ public class DepartmentServiceUnitTests {
 
     @Test
     @DisplayName("Update department: Department is read only")
-    @Order(7)
-    public void updateReadOnlyDepartment_ShouldThrowIllegalArgumentExceptionTest() {
+    public void testUpdateReadOnlyDepartment_ShouldThrowIllegalArgumentException() {
         Department updatedReadOnlyAndMandatoryDepartmentData = Department.builder()
-                .id(1L)
+                .id(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID)
                 .name("Updated Organisation")
                 .readOnly(true)
                 .mandatory(false)
                 .build();
 
-        doReturn(readOnlyAndMandatoryDepartment).when(departmentService).getDepartmentById(updatedReadOnlyAndMandatoryDepartmentData.getId());
-
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            departmentService.updateDepartment(updatedReadOnlyAndMandatoryDepartmentData);
+            departmentServiceImpl.updateDepartment(updatedReadOnlyAndMandatoryDepartmentData);
         });
 
         assertEquals(ErrorMessages.ERROR_DEPARTMENT_IS_READ_ONLY, exception.getMessage());
@@ -174,19 +155,17 @@ public class DepartmentServiceUnitTests {
 
     @Test
     @DisplayName("Update department: Department updated successfully")
-    @Order(7)
-    public void updateDepartmentSuccessful() {
+    public void testUpdateDepartment_Success() {
         Department updatedReadOnlyAndMandatoryDepartmentData = Department.builder()
-                .id(1L)
+                .id(READ_ONLY_AND_MANDATORY_DEPARTMENT_ID)
                 .name("Updated Organisation")
                 .readOnly(false)
                 .mandatory(false)
                 .build();
 
-        doReturn(readOnlyAndMandatoryDepartment).when(departmentService).getDepartmentById(updatedReadOnlyAndMandatoryDepartmentData.getId());
-        given(departmentRepository.save(updatedReadOnlyAndMandatoryDepartmentData)).willReturn(updatedReadOnlyAndMandatoryDepartmentData);
+        when(departmentRepository.save(updatedReadOnlyAndMandatoryDepartmentData)).thenReturn(updatedReadOnlyAndMandatoryDepartmentData);
 
-        Department department = departmentService.updateDepartment(updatedReadOnlyAndMandatoryDepartmentData);
+        Department department = departmentServiceImpl.updateDepartment(updatedReadOnlyAndMandatoryDepartmentData);
 
         assertThat(department).isNotNull();
         assertEquals(department.getId(), updatedReadOnlyAndMandatoryDepartmentData.getId());
