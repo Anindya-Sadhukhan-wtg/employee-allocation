@@ -29,7 +29,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee getEmployee(Long id) {
+    public Employee getEmployeeById(Long id) {
         Optional<Employee> employee = employeeRepository.findById(id);
         if(employee.isEmpty()) {
             throw new NoSuchElementException(ErrorMessages.ERROR_EMPLOYEE_NOT_FOUND + id);
@@ -47,14 +47,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         if(employee.getId() == null){
             throw new IllegalArgumentException(ErrorMessages.ERROR_INVALID_EMPLOYEE_ID);
         }
-        getEmployee(employee.getId());
+        getEmployeeById(employee.getId());
 
         return processEmployeeCreation(employee);
     }
 
     @Override
     public String deleteEmployee(Long id) {
-        getEmployee(id);
+        getEmployeeById(id);
         employeeRepository.deleteById(id);
         return "Employee deleted";
     }

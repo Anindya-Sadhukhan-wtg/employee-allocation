@@ -5,7 +5,7 @@ import org.example.employeeallocation.model.Department;
 import java.util.List;
 
 public interface DepartmentService {
-     Department getDepartment(Long id);
+     Department getDepartmentById(Long id);
      List<Department> getAllDepartments();
      Department addDepartment(Department department);
      Department updateDepartment(Department department);

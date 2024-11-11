@@ -26,7 +26,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public Department getDepartment(Long id) {
+    public Department getDepartmentById(Long id) {
         Optional<Department> department = departmentRepository.findById(id);
         if(department.isEmpty()) {
             throw new NoSuchElementException(ErrorMessages.ERROR_DEPARTMENT_NOT_FOUND + id);
@@ -45,7 +45,7 @@ public class DepartmentServiceImpl implements DepartmentService {
             throw new IllegalArgumentException(ErrorMessages.ERROR_INVALID_DEPARTMENT_ID);
         }
 
-        Department departmentCurrentData = getDepartment(department.getId());
+        Department departmentCurrentData = getDepartmentById(department.getId());
         // if read only in current data is false we can update the department
         if(departmentCurrentData.getReadOnly() && department.getReadOnly()){
             throw new IllegalArgumentException(ErrorMessages.ERROR_DEPARTMENT_IS_READ_ONLY);
@@ -56,7 +56,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public String deleteDepartment(Long id) {
-        Department departmentData = getDepartment(id);
+        Department departmentData = getDepartmentById(id);
 
         if(departmentData.getReadOnly()){
             throw new IllegalArgumentException(ErrorMessages.ERROR_DEPARTMENT_IS_READ_ONLY);

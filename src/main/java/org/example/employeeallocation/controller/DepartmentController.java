@@ -26,8 +26,8 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Department> getDepartment(@PathVariable long id) {
-        return new ResponseEntity<>(departmentServiceImpl.getDepartment(id), HttpStatus.OK);
+    public ResponseEntity<Department> getDepartmentById(@PathVariable long id) {
+        return new ResponseEntity<>(departmentServiceImpl.getDepartmentById(id), HttpStatus.OK);
     }
 
     @PostMapping
